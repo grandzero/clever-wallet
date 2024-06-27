@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { connect, disconnect } from "starknetkit";
-
+import { InjectedConnector } from "starknetkit/injected";
 interface WalletContextType {
   wallet: any | null;
   isConnected: boolean;
@@ -27,7 +27,16 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const connectWallet = async () => {
     try {
-      const { wallet } = await connect();
+      const { wallet } = await connect({
+        connectors: [
+          new InjectedConnector({
+            options: { id: "argentX" },
+          }),
+          new InjectedConnector({
+            options: { id: "braavos" },
+          }),
+        ],
+      });
       if (wallet && wallet.isConnected) {
         setWallet(wallet);
         setIsConnected(true);
@@ -49,7 +58,16 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const checkConnection = async () => {
-      const { wallet } = await connect();
+      const { wallet } = await connect({
+        connectors: [
+          new InjectedConnector({
+            options: { id: "argentX" },
+          }),
+          new InjectedConnector({
+            options: { id: "braavos" },
+          }),
+        ],
+      });
       if (wallet && wallet.isConnected) {
         setWallet(wallet);
         setIsConnected(true);

@@ -38,6 +38,7 @@ Operation types are mapped as follows:
 2: SimulateTransaction
 3: SendToken
 4: SendEth (native token on Starknet)
+5: GetAddress
 
 For example:
 - If a user asks "What's my balance?", respond with:
@@ -66,14 +67,20 @@ For example:
   }
 }
 
+- For getting the address, respond with:
+{
+  "operationType": 5,
+  "message": "Your address is [$address]",
+  "arguments": null
+}
+
 Always respond with a valid JSON object. If you can't understand or process the request, use the following format:
 {
   "operationType": -1,
   "message": "I'm sorry, I couldn't understand your request. Could you please rephrase it?",
   "arguments": null
 }
-
-Remember, this is a Starknet wallet, so all operations should be compatible with Starknet's architecture and StarknetKit.`;
+Do not write exact same messages as the examples above. Be creative and provide a human-like response. But add variables like [$balance] to indicate where the values should be inserted.`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4-turbo",
