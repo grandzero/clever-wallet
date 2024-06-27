@@ -2,20 +2,29 @@
 import React, { useState, useRef, useEffect } from "react";
 import { connect } from "starknetkit";
 import { useRouter } from "next/navigation";
-import { PaperAirplaneIcon, PlusIcon } from "@heroicons/react/24/outline";
+import {
+  PaperAirplaneIcon,
+  ChatBubbleLeftIcon,
+} from "@heroicons/react/24/solid";
 import { useWallet } from "@/lib/contexts/wallet-context";
 import { executeLLMResponse, parseLLMResponse } from "@/lib/utils/llm-parser";
-
+import Image from "next/image";
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
 const suggestedActions = [
-  "What is my account's balance?",
-  "How much $STARK token do I have?",
-  "Simulate transaction from clipboard",
-  "Send 0.1 eth to my friend",
+  "What's my balance?",
+  "STARK token balance",
+  "Simulate transaction",
+  "Send 0.1 ETH",
+];
+
+const pastConversations = [
+  "Balance Check - 2 days ago",
+  "ETH Transfer - Yesterday",
+  "Token Swap - 1 hour ago",
 ];
 
 export default function ChatInterface() {
@@ -84,10 +93,7 @@ export default function ChatInterface() {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    // Add user message
     setVisibleMessages((prev) => [...prev, { role: "user", content: input }]);
-
-    // Add temporary assistant message
     setVisibleMessages((prev) => [
       ...prev,
       { role: "assistant", content: "Checking..." },
@@ -97,7 +103,6 @@ export default function ChatInterface() {
 
     const response = await sendMessageToBackend(input);
 
-    // Update assistant message with the response
     setVisibleMessages((prev) => [
       ...prev.slice(0, -1),
       { role: "assistant", content: response },
@@ -105,71 +110,88 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-900 text-gray-100">
-      {/* Sidebar */}
-      <div className="w-64 bg-gray-800 p-4">
-        <button className="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded flex items-center justify-center">
-          <PlusIcon className="h-5 w-5 mr-2" />
-          New Chat
-        </button>
-        <div className="mt-4 space-y-2">
-          {suggestedActions.map((action, index) => (
-            <button
-              key={index}
-              onClick={() => setInput(action)}
-              className="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded"
-            >
-              {action}
-            </button>
-          ))}
+    <div className="flex flex-col h-screen bg-gray-900 text-gray-100">
+      <header className="flex justify-between items-center p-4 bg-gray-800">
+        <Image
+          src="/cleverwhite.svg"
+          alt="Clever Wallet Logo"
+          width={52}
+          height={52}
+          className="rounded-full"
+        />
+        <h1 className="text-xl font-bold">Clever Wallet</h1>
+        <span className="text-sm">
+          {wallet?.selectedAddress
+            ? `${wallet.selectedAddress.slice(
+                0,
+                5
+              )}...${wallet.selectedAddress.slice(-4)}`
+            : ""}
+        </span>
+      </header>
+
+      <div className="flex-1 flex justify-center px-4 py-2">
+        <div className="w-full max-w-4xl bg-gray-950 rounded-xl overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {visibleMessages.map((msg, index) => (
+              <div
+                key={index}
+                className={`flex ${
+                  msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[80%] p-3 rounded-lg ${
+                    msg.role === "user" ? "bg-blue-600" : "bg-gray-700"
+                  }`}
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="p-4 bg-gray-800">
+            <div className="flex justify-center space-x-2 mb-4">
+              {suggestedActions.map((action, index) => (
+                <button
+                  key={index}
+                  onClick={() => setInput(action)}
+                  className="bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium py-2 px-4 rounded-full transition duration-200"
+                >
+                  {action}
+                </button>
+              ))}
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="flex items-center space-x-2 bg-gray-700 rounded-full">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  className="flex-1 p-3 bg-transparent border-none focus:ring-0 focus:outline-none text-gray-100 rounded-full"
+                  placeholder="What would you like to do with your wallet?"
+                  disabled={isLoading}
+                />
+                <button
+                  type="submit"
+                  className="p-2 text-gray-400 hover:text-gray-200 transition-colors focus:outline-none disabled:opacity-50 mr-2"
+                  disabled={isLoading}
+                >
+                  <PaperAirplaneIcon className="h-6 w-6" />
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
 
-      {/* Main chat area */}
-      <div className="flex-1 flex flex-col">
-        {/* Chat messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {visibleMessages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                msg.role === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`max-w-3/4 p-3 rounded-lg ${
-                  msg.role === "user" ? "bg-blue-600" : "bg-gray-700"
-                }`}
-              >
-                {msg.content}
-              </div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input area */}
-        <form onSubmit={handleSubmit}>
-          <div className="p-4 bg-gray-800">
-            <div className="flex space-x-2 items-center">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                className="flex-1 p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Type your message..."
-                disabled={isLoading}
-              />
-              <button
-                type="submit"
-                className="p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-                disabled={isLoading}
-              >
-                <PaperAirplaneIcon className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-        </form>
+      <div className="p-2 bg-gray-800">
+        <p className="text-center text-xs text-gray-500">
+          Clever wallet is currently in beta. Please do not use real funds.
+        </p>
       </div>
     </div>
   );
