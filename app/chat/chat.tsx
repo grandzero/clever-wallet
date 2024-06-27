@@ -138,14 +138,25 @@ export default function ChatInterface() {
                 key={index}
                 className={`flex ${
                   msg.role === "user" ? "justify-end" : "justify-start"
-                }`}
+                } mb-4`}
               >
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
-                    msg.role === "user" ? "bg-blue-600" : "bg-gray-700"
+                  className={`relative max-w-[80%] px-4 py-2 rounded-2xl ${
+                    msg.role === "user"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-900"
                   }`}
                 >
-                  {msg.content}
+                  <div
+                    className={`absolute bottom-[-3px] ${
+                      msg.role === "user" ? "right-[7px]" : "left-[7px]"
+                    } w-4 h-4 ${
+                      msg.role === "user" ? "bg-blue-600" : "bg-gray-200"
+                    } transform ${
+                      msg.role === "user" ? "-rotate-45" : "rotate-45"
+                    }`}
+                  ></div>
+                  <div className="relative z-10">{msg.content}</div>
                 </div>
               </div>
             ))}
