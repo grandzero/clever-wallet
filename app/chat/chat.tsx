@@ -141,19 +141,38 @@ export default function ChatInterface() {
                 } mb-4`}
               >
                 <div
-                  className={`relative max-w-[80%] px-4 py-2 rounded-2xl ${
+                  className={`relative max-w-[80%] px-4 py-2 rounded-xl ${
                     msg.role === "user"
                       ? "bg-blue-600 text-white"
                       : "bg-gray-200 text-gray-900"
                   }`}
                 >
-                  <div
-                    className={`absolute bottom-[-3px] ${
-                      msg.role === "user" ? "right-[7px]" : "left-[7px]"
+                  {/* <div
+                    style={{
+                      transform:
+                        msg.role === "user"
+                          ? "rotate(60deg)"
+                          : "rotate(-60deg)",
+                    }}
+                    className={`absolute -top-0.5 ${
+                      msg.role === "user" ? "right-1" : "left-1"
                     } w-4 h-4 ${
                       msg.role === "user" ? "bg-blue-600" : "bg-gray-200"
-                    } transform ${
-                      msg.role === "user" ? "-rotate-45" : "rotate-45"
+                    } `}
+                  ></div> */}
+                  <div
+                    style={{
+                      top: -4.4,
+                      clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)", // Creates a triangle shape
+                      transform:
+                        msg.role === "user"
+                          ? "rotate(65deg)"
+                          : "rotate(-65deg)", // Adjust rotation if needed
+                    }}
+                    className={`absolute ${
+                      msg.role === "user" ? "-right-2" : "-left-2"
+                    } w-4 h-4 ${
+                      msg.role === "user" ? "bg-blue-600" : "bg-gray-200"
                     }`}
                   ></div>
                   <div className="relative z-10">{msg.content}</div>

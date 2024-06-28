@@ -48,6 +48,13 @@ For example:
   "arguments": null
 }
 
+- If a user asks "What's my starknet balance?", respond with add [$balance]:
+{
+  "operationType": 1,
+  "message": "Your balance is [$balance] $STARK",
+  "arguments": null
+}
+
 - If a user wants to send ETH, respond with:
 {
   "operationType": 4,

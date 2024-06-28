@@ -32,7 +32,14 @@ const ETH_TOKEN_ADDRESS =
   "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7";
 const STRK_TOKEN_ADDRESS =
   "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d";
-
+function formatBalance(balance: string): string {
+  const num = Number(balance) / 1e18;
+  if (num < 1) {
+    return num.toFixed(3);
+  } else {
+    return num.toFixed(1).replace(/\.0$/, "");
+  }
+}
 async function getTokenBalance(
   wallet: any,
   tokenAddress: string
@@ -57,8 +64,8 @@ async function getTokenBalance(
     } else {
       balance = balanceResponse;
     }
-
-    return uint256.uint256ToBN(balance).toString();
+    console.log("Balance is : ", uint256.uint256ToBN(balance).toString());
+    return formatBalance(uint256.uint256ToBN(balance).toString());
   } catch (error) {
     console.error("Error getting token balance:", error);
     throw new Error(
@@ -91,14 +98,13 @@ export async function executeLLMResponse(
         return result;
 
       case OperationType.GetTokenBalance:
-        if (!response.arguments || !response.arguments.tokenAddress) {
-          throw new Error("Invalid arguments for getting token balance");
-        }
-        const tokenBalance = await getTokenBalance(
-          wallet,
-          response.arguments.tokenAddress
-        );
-        return `Your token balance is ${tokenBalance}`;
+        // throw new Error("Invalid arguments for getting token balance");
+
+        const tokenBal = await getTokenBalance(wallet, STRK_TOKEN_ADDRESS);
+        if (response.message.includes("[$balance]"))
+          return response.message.replace("[$balance]", tokenBal);
+
+        return response.message + " Your accounts balance is : " + tokenBal;
 
       case OperationType.SimulateTransaction:
         if (
@@ -118,6 +124,7 @@ export async function executeLLMResponse(
         )}`;
 
       case OperationType.SendToken:
+        console.log("Response is : ", response);
         if (
           !response.arguments ||
           !response.arguments.tokenAddress ||
@@ -167,6 +174,8 @@ export async function executeLLMResponse(
     }
   } catch (error: any) {
     console.error("Error executing LLM response:", error);
+    if (error.message.includes("User abort"))
+      return "You have aborted the transaction.";
     return `An error occurred: ${error.message}`;
   }
 }
