@@ -5,6 +5,7 @@ import {
   CallData,
   BigNumberish,
   constants,
+  RpcProvider,
 } from "starknet";
 import etherc20abi from "../abis/etherc20abi.json";
 
