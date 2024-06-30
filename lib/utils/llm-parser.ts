@@ -111,21 +111,22 @@ export async function executeLLMResponse(
         return response.message + " Your accounts balance is : " + tokenBal;
 
       case OperationType.SimulateTransaction:
-        if (
-          !response.arguments ||
-          !response.arguments.to ||
-          !response.arguments.calldata
-        ) {
-          throw new Error("Invalid arguments for simulating transaction");
-        }
-        const simulationResult = await wallet.account.simulateTransaction({
-          contractAddress: response.arguments.to,
-          entrypoint: "execute",
-          calldata: CallData.compile(response.arguments.calldata),
-        });
-        return `Transaction simulation result: ${JSON.stringify(
-          simulationResult
-        )}`;
+        return "Generic simulation is not supported yet";
+        // if (
+        //   !response.arguments ||
+        //   !response.arguments.to ||
+        //   !response.arguments.calldata
+        // ) {
+        //   throw new Error("Invalid arguments for simulating transaction");
+        // }
+        // const simulationResult = await wallet.account.simulateTransaction({
+        //   contractAddress: response.arguments.to,
+        //   entrypoint: "execute",
+        //   calldata: CallData.compile(response.arguments.calldata),
+        // });
+        // return `Transaction simulation result: ${JSON.stringify(
+        //   simulationResult
+        // )}`;
 
       case OperationType.SendToken:
         console.log("Response is : ", response);
@@ -182,13 +183,64 @@ export async function executeLLMResponse(
   
         case OperationType.SimulateMyOperation:
           // This will be handled by the frontend
-          return "Your operation is being simulated. Please wait for the results.";
+          const amount_Uint256 = cairo.uint256(response.arguments.amount as BigNumberish);
+
+        let calldata = CallData.compile({
+          recipient: response.arguments.to,
+          amount: amount_Uint256,
+        });
+
+        const invocation = {
+          contractAddress: STRK_TOKEN_ADDRESS,
+          entrypoint: "transfer",
+          calldata,
+        };
+
+        const simulationResult = await wallet.account.simulateTransaction(
+          [
+            {
+              type: "INVOKE_FUNCTION",
+              ...invocation,
+            },
+          ],
+          {
+            blockIdentifier: "pending",
+            skipValidate: true,
+            skipExecute: true,
+          }
+        );
+        console.log("Simulation result is : ", simulationResult);
+        // Call the simulate endpoint
+        try{
+          // @ts-ignore
+          BigInt.prototype.toJSON = function() { return this.toString() }
+          console.log("Simulation result is : ", JSON.stringify(simulationResult));
+          
+        }catch(err: any){
+          console.log("Error while stringifying simulation result : ", err);
+        }
+        const simulateResponse = await fetch("/api/simulate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            simulationResult,
+            operationType: "SimulateMyOperation",
+          }),
+        });
+        
+        if (!simulateResponse.ok) {
+          throw new Error("Failed to get simulation analysis");
+        }
+
+        const simulateData = await simulateResponse.json();
+        return simulateData.response;
+
   
       default:
         throw new Error(ErrorTypes[ErrorTypes.CouldNotFindDefault]);
     }
   } catch (error: any) {
-    console.error("Error executing LLM response:", error);
+    console.log("Error executing LLM response:", error);
     if (error.message.includes("User abort"))
       return "You have aborted the transaction.";
     return `An error occurred: ${error.message}`;

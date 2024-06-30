@@ -92,11 +92,11 @@ For example:
   "arguments": <paste the entire transaction object here>
 }
 
-- If a user asks to simulate their operation, respond with:
+- If a user asks to simulate their operation, this means simulate sending stark token and respond with:
 {
   "operationType": 8,
   "message": "I'll simulate your operation.",
-  "arguments": null
+  "arguments": { to: "<recipient address>", amount: "<amount in wei>" }
 }
 
 - For general chat or if you're unsure about the operation type, use:

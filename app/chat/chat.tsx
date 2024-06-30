@@ -26,50 +26,6 @@ interface Message {
 }
 import etherc20abi from "../../lib/abis/etherc20abi.json";
 
-const testTx = {
-  jsonrpc: "2.0",
-  method: "starknet_simulateTransactions",
-  params: {
-    block_id: {
-      block_number: 651030,
-    },
-    transactions: [
-      {
-        type: "INVOKE",
-        version: "0x3",
-        sender_address:
-          "0x06496c659adab5aeeb34d7767f697ad41abfec046584313fe54fc304804fb195",
-        calldata: [
-          "0x01",
-          "0x1405ab78ab6ec90fba09e6116f373cda53b0ba557789a4578d8c1ec374ba0f",
-          "0x0132bdf85fc8aa10ac3c22f02317f8f53d4b4f52235ed1eabb3a4cbbe08b5c41",
-          "0x02",
-          "0x4a",
-          "0x01",
-        ],
-        signature: [],
-        nonce: "0x3c1",
-        tip: "0x0",
-        paymaster_data: [],
-        account_deployment_data: [],
-        nonce_data_availability_mode: "L2",
-        fee_data_availability_mode: "L2",
-        resource_bounds: {
-          l1_gas: {
-            max_amount: "0x0",
-            max_price_per_unit: "0x0",
-          },
-          l2_gas: {
-            max_amount: "0x0",
-            max_price_per_unit: "0x0",
-          },
-        },
-      },
-    ],
-    simulation_flags: ["SKIP_VALIDATE"],
-  },
-  id: 1,
-};
 const suggestedActions = [
   "What's my balance?",
   "STARK token balance",
@@ -172,7 +128,7 @@ export default function ChatInterface() {
 
             let calldata = CallData.compile({
               recipient:
-                "0x01729bf2e4c5b1f8150d4c73fca04981be5446092d10d0bd06ba66eab49fa71d",
+                "0x0016205414845da98e681D9F4e91D95Fa1f7048D6D3d47f1182Bc4CA1c553672",
               amount: amountUint256,
             });
 
@@ -187,12 +143,10 @@ export default function ChatInterface() {
                 {
                   type: "INVOKE_FUNCTION",
                   ...invocation,
-                  // ...transactionsDetail,
-                  // signature,
                 },
               ],
               {
-                blockIdentifier: "pending",
+                // blockIdentifier: "pending",
                 skipValidate: true,
                 skipExecute: true,
               }
