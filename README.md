@@ -1,6 +1,6 @@
 # Clever Wallet: AI-Powered Starknet Wallet Assistant
 
-![Clever Wallet Demo](demo/demo.gif)
+![Clever Wallet Demo](./demo/demo.gif)
 
 ## Try It Out
 
@@ -70,8 +70,10 @@ Clever Wallet is an innovative, AI-driven wallet interface for Starknet, designe
 3. Use the chat interface to interact with your wallet. Some example commands:
    - "What's my ETH balance?"
    - "Send 0.1 ETH to 0x1234..."
-   - "Simulate a transaction to swap 10 USDC for ETH"
-   - "Explain this raw transaction: [paste transaction data]"
+   - "Simulate a transaction to send 10 stark to 0x123..."
+   - "What is my account address"
+   - "Send 10 stark to 0x123..."
+   - "Explain me what is 10kswap"
 
 ## Future Roadmap
 
