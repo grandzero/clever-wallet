@@ -7,11 +7,7 @@ import {
   ChatBubbleLeftIcon,
 } from "@heroicons/react/24/solid";
 import { useWallet } from "@/lib/contexts/wallet-context";
-import {
-  executeLLMResponse,
-  parseLLMResponse,
-  OperationType,
-} from "@/lib/utils/llm-parser";
+import { executeLLMResponse, parseLLMResponse } from "@/lib/utils/llm-parser";
 import Image from "next/image";
 import {
   Contract,
@@ -24,12 +20,56 @@ import {
   Invocation,
   TransactionType,
 } from "starknet";
-
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
+import etherc20abi from "../../lib/abis/etherc20abi.json";
 
+const testTx = {
+  jsonrpc: "2.0",
+  method: "starknet_simulateTransactions",
+  params: {
+    block_id: {
+      block_number: 651030,
+    },
+    transactions: [
+      {
+        type: "INVOKE",
+        version: "0x3",
+        sender_address:
+          "0x06496c659adab5aeeb34d7767f697ad41abfec046584313fe54fc304804fb195",
+        calldata: [
+          "0x01",
+          "0x1405ab78ab6ec90fba09e6116f373cda53b0ba557789a4578d8c1ec374ba0f",
+          "0x0132bdf85fc8aa10ac3c22f02317f8f53d4b4f52235ed1eabb3a4cbbe08b5c41",
+          "0x02",
+          "0x4a",
+          "0x01",
+        ],
+        signature: [],
+        nonce: "0x3c1",
+        tip: "0x0",
+        paymaster_data: [],
+        account_deployment_data: [],
+        nonce_data_availability_mode: "L2",
+        fee_data_availability_mode: "L2",
+        resource_bounds: {
+          l1_gas: {
+            max_amount: "0x0",
+            max_price_per_unit: "0x0",
+          },
+          l2_gas: {
+            max_amount: "0x0",
+            max_price_per_unit: "0x0",
+          },
+        },
+      },
+    ],
+    simulation_flags: ["SKIP_VALIDATE"],
+  },
+  id: 1,
+};
 const suggestedActions = [
   "What's my balance?",
   "STARK token balance",
@@ -39,7 +79,6 @@ const suggestedActions = [
 
 const STRK_TOKEN_ADDRESS =
   "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d";
-
 export default function ChatInterface() {
   const [visibleMessages, setVisibleMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -87,37 +126,12 @@ export default function ChatInterface() {
         result += decoder.decode(value);
       }
       let parsedResult = await parseLLMResponse(JSON.parse(result).response);
-
-      if (parsedResult.operationType === OperationType.SimulateRawTransaction) {
-        setVisibleMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content:
-              "Your transaction is simulating. Soon you will receive a summary.",
-          },
-        ]);
-        return simulateRawTransaction(parsedResult.arguments);
-      } else if (
-        parsedResult.operationType === OperationType.SimulateMyOperation
-      ) {
-        setVisibleMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content:
-              "Your operation is being simulated. Please wait for the results.",
-          },
-        ]);
-        return simulateMyOperation();
-      } else {
-        try {
-          let executionResult = await executeLLMResponse(parsedResult, wallet);
-          return executionResult;
-        } catch (error: any) {
-          console.error("Error parsing response from backend:", error);
-          return "Sorry, there was an error processing your request.";
-        }
+      try {
+        let executionResult = await executeLLMResponse(parsedResult, wallet);
+        return executionResult;
+      } catch (error: any) {
+        console.error("Error parsing response from backend:", error);
+        return "Sorry, there was an error processing your request.";
       }
     } catch (error) {
       console.error("Error sending message to backend:", error);
@@ -127,95 +141,26 @@ export default function ChatInterface() {
     }
   };
 
-  const simulateRawTransaction = async (transactionParams: any) => {
-    try {
-      const simulationResult = await wallet.account.simulateTransaction(
-        transactionParams.transactions,
-        {
-          blockIdentifier: transactionParams.block_id,
-          skipValidate:
-            transactionParams.simulation_flags.includes("SKIP_VALIDATE"),
-        }
-      );
-
-      const response = await fetch("/api/simulate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          simulationResult,
-          operationType: "SimulateRawTransaction",
-        }),
-      });
-
-      const result = await response.json();
-      return result.response;
-    } catch (error) {
-      console.error("Error simulating raw transaction:", error);
-      return "An error occurred while simulating the transaction.";
-    }
-  };
-
-  const simulateMyOperation = async () => {
-    try {
-      const amountUint256 = cairo.uint256("1000000000" as BigNumberish);
-
-      let calldata = CallData.compile({
-        recipient:
-          "0x01729bf2e4c5b1f8150d4c73fca04981be5446092d10d0bd06ba66eab49fa71d",
-        amount: amountUint256,
-      });
-
-      const invocation: Invocation = {
-        contractAddress: STRK_TOKEN_ADDRESS,
-        entrypoint: "transfer",
-        calldata,
-      };
-
-      const simulationResult = await wallet.account.simulateTransaction(
-        [
-          {
-            type: TransactionType.INVOKE,
-            ...invocation,
-          },
-        ],
-        {
-          blockIdentifier: "pending",
-          skipValidate: true,
-          skipExecute: false,
-        }
-      );
-
-      const response = await fetch("/api/simulate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          simulationResult,
-          operationType: "SimulateMyOperation",
-        }),
-      });
-
-      const result = await response.json();
-      return result.response;
-    } catch (error) {
-      console.error("Error simulating my operation:", error);
-      return "An error occurred while simulating your operation.";
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
     setVisibleMessages((prev) => [...prev, { role: "user", content: input }]);
+    setVisibleMessages((prev) => [
+      ...prev,
+      { role: "assistant", content: "Checking..." },
+    ]);
+
     setInput("");
 
     const response = await sendMessageToBackend(input);
 
     setVisibleMessages((prev) => [
-      ...prev,
+      ...prev.slice(0, -1),
       { role: "assistant", content: response },
     ]);
   };
+
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-gray-100">
       <header className="flex justify-between items-center p-4 bg-gray-800">

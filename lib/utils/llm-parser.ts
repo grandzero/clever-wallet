@@ -18,7 +18,7 @@ export enum OperationType {
   GetAddress,
   NormalChatOperation,
   SimulateRawTransaction,
-  SimulateMyOperation
+  SimulateMyOperation,
 }
 
 export enum ErrorTypes {
@@ -129,17 +129,16 @@ export async function executeLLMResponse(
 
       case OperationType.SendToken:
         console.log("Response is : ", response);
-        if (
-          !response.arguments ||
-          !response.arguments.tokenAddress ||
-          !response.arguments.to ||
-          !response.arguments.amount
-        ) {
-          throw new Error("Invalid arguments for sending token");
-        }
+        // if (
+        //   !response.arguments ||
+        //   !response.arguments.to ||
+        //   !response.arguments.amount
+        // ) {
+        //   throw new Error("Invalid arguments for sending token");
+        // }
         const tokenContract = new Contract(
           etherc20abi.abi,
-          response.arguments.tokenAddress,
+          STRK_TOKEN_ADDRESS,
           wallet.account
         );
         const amountUint256 = cairo.uint256(
