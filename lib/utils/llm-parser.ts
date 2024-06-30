@@ -16,6 +16,9 @@ export enum OperationType {
   SendToken,
   SendEth,
   GetAddress,
+  NormalChatOperation,
+  SimulateRawTransaction,
+  SimulateMyOperation
 }
 
 export enum ErrorTypes {
@@ -170,6 +173,18 @@ export async function executeLLMResponse(
         return `ETH transfer initiated: ${transferResult.transaction_hash}`;
       case OperationType.GetAddress:
         return response.message.replace("[$address]", wallet.account.address);
+
+        case OperationType.NormalChatOperation:
+          return response.message;
+  
+        case OperationType.SimulateRawTransaction:
+          // This will be handled by the frontend
+          return "Your transaction is simulating. Soon you will receive a summary.";
+  
+        case OperationType.SimulateMyOperation:
+          // This will be handled by the frontend
+          return "Your operation is being simulated. Please wait for the results.";
+  
       default:
         throw new Error(ErrorTypes[ErrorTypes.CouldNotFindDefault]);
     }
