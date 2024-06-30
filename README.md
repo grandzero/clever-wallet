@@ -1,8 +1,18 @@
 # Clever Wallet: AI-Powered Starknet Wallet Assistant
 
+![Clever Wallet Demo](demo/demo.gif)
+
+## Try It Out
+
+📱 **[Live Demo: Clever Wallet](https://clever-wallet.vercel.app/)**
+
+Experience the future of crypto management – where blockchain complexity meets conversational simplicity.
+
 ## Overview
 
 Clever Wallet is an innovative, AI-driven wallet interface for Starknet, designed to simplify and enhance the user experience in blockchain interactions. By leveraging natural language processing and advanced AI capabilities, Clever Wallet allows users to manage their crypto assets, perform transactions, and interact with the Starknet ecosystem using simple, conversational commands.
+
+[Watch the Clever Wallet Demo Video](https://bu2.pw/cleverwallet)
 
 ## Features
 
@@ -21,6 +31,7 @@ Clever Wallet is an innovative, AI-driven wallet interface for Starknet, designe
 - **AI and Natural Language Processing**: OpenAI GPT-4
 - **State Management**: React Context API
 - **TypeScript**: For type-safe code and enhanced developer experience
+- **Deployment**: Vercel
 
 ## Getting Started
 
@@ -54,8 +65,9 @@ Clever Wallet is an innovative, AI-driven wallet interface for Starknet, designe
 
 ## Usage
 
-1. Connect your Starknet wallet (e.g., ArgentX) to the application.
-2. Use the chat interface to interact with your wallet. Some example commands:
+1. Visit the [Clever Wallet Demo](https://clever-wallet.vercel.app/) or your locally running instance.
+2. Connect your Starknet wallet (e.g., ArgentX) to the application.
+3. Use the chat interface to interact with your wallet. Some example commands:
    - "What's my ETH balance?"
    - "Send 0.1 ETH to 0x1234..."
    - "Simulate a transaction to swap 10 USDC for ETH"
@@ -71,11 +83,6 @@ We're constantly working to improve Clever Wallet. Here are some exciting featur
 - **Native Account Abstraction**: Implement native support for Starknet's account abstraction features.
 - **Email Sign-In with Account Abstraction**: Allow users to sign in and manage their wallet using just an email address, leveraging account abstraction for a seamless experience.
 - **Multi-Chain Support**: Expand beyond Starknet to support multiple blockchain networks.
-- **Advanced Analytics**: Provide AI-driven insights into user's transaction history and portfolio performance.
-- **Custom AI Models**: Develop specialized AI models trained on blockchain and DeFi data for more accurate and helpful responses.
-- **Integration with DeFi Protocols**: Direct interaction with lending, borrowing, and yield farming protocols through natural language commands.
-- **Gasless Transactions**: Implement meta-transactions to allow users to operate without holding native tokens for gas fees.
-- **Social Recovery**: Enhance wallet security with AI-assisted social recovery options.
 
 ## Contributing
 
@@ -89,6 +96,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Thanks to the Starknet and StarknetKit teams for their fantastic tools and documentation.
 - Special thanks to OpenAI for providing the powerful GPT models that drive our AI assistant.
+- Kudos to Vercel for their excellent hosting and deployment platform.
 
 ---
 
